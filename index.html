@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CakeDay</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+            colors: {
+              cream: '#FDFBF7',
+              coral: {
+                100: '#FFE4E1',
+                500: '#FF7F50',
+                800: '#CC4F2B',
+              },
+              teal: {
+                100: '#E0F2F1',
+                500: '#26A69A',
+                800: '#00695C',
+              },
+              purple: {
+                100: '#EDE7F6',
+                500: '#7E57C2',
+                800: '#4527A0',
+              },
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        background-color: #FDFBF7; /* Custom cream background */
+        -webkit-tap-highlight-color: transparent;
+      }
+      /* Hide scrollbar for clean look in cards */
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "uuid": "https://esm.sh/uuid@^13.0.0",
+    "canvas-confetti": "https://esm.sh/canvas-confetti@^1.9.4"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

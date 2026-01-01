@@ -1,0 +1,5 @@
+{
+  "name": "CakeDay",
+  "description": "A mobile-first birthday tracker for friends and family with countdowns, categorization, and easy sharing.",
+  "requestFramePermissions": []
+}
