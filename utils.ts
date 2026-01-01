@@ -83,8 +83,8 @@ export const generateGiftSuggestions = async (relation: RelationType, age: numbe
     // Safe access for browser environment where process might be undefined
     const apiKey = typeof process !== 'undefined' ? process.env.API_KEY : undefined;
 
-    if (!apiKey) {
-      console.warn("No API Key found, using static suggestions");
+    if (!apiKey || apiKey === 'YOUR_GEMINI_API_KEY_HERE') {
+      console.warn("API Key is missing or invalid (placeholder detected). Using static suggestions.");
       return getStaticGiftSuggestions(relation, age);
     }
 
