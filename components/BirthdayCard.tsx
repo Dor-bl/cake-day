@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Share2, Gift, Briefcase, Users, Calendar, Sparkles } from 'lucide-react';
+import { Share2, Gift, Briefcase, Users, Calendar, Sparkles, Loader2 } from 'lucide-react';
 import { BirthdayWithCalculations, RelationType } from '../types';
-import { formatDate, getOrdinalSuffix, getGiftSuggestions } from '../utils';
+import { formatDate, getOrdinalSuffix, generateGiftSuggestions } from '../utils';
 import confetti from 'canvas-confetti';
 
 interface BirthdayCardProps {
@@ -11,6 +11,8 @@ interface BirthdayCardProps {
 
 export const BirthdayCard: React.FC<BirthdayCardProps> = ({ birthday, onDelete }) => {
   const [showGifts, setShowGifts] = useState(false);
+  const [giftIdeas, setGiftIdeas] = useState<string[]>([]);
+  const [isLoadingGifts, setIsLoadingGifts] = useState(false);
   
   const handleShare = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -41,6 +43,19 @@ export const BirthdayCard: React.FC<BirthdayCardProps> = ({ birthday, onDelete }
         spread: 70,
         origin: { y: 0.6 }
       });
+    }
+  };
+
+  const toggleGifts = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newState = !showGifts;
+    setShowGifts(newState);
+
+    if (newState && giftIdeas.length === 0) {
+      setIsLoadingGifts(true);
+      const ideas = await generateGiftSuggestions(birthday.relation, birthday.ageTurning, birthday.name);
+      setGiftIdeas(ideas);
+      setIsLoadingGifts(false);
     }
   };
 
@@ -83,7 +98,6 @@ export const BirthdayCard: React.FC<BirthdayCardProps> = ({ birthday, onDelete }
   };
 
   const theme = getTheme(birthday.relation);
-  const suggestions = getGiftSuggestions(birthday.relation, birthday.ageTurning);
 
   return (
     <div 
@@ -131,7 +145,7 @@ export const BirthdayCard: React.FC<BirthdayCardProps> = ({ birthday, onDelete }
         
         <div className="flex gap-2">
            <button 
-            onClick={(e) => { e.stopPropagation(); setShowGifts(!showGifts); }}
+            onClick={toggleGifts}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold transition-all ${showGifts ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
           >
             <Sparkles className="w-3.5 h-3.5" />
@@ -150,18 +164,27 @@ export const BirthdayCard: React.FC<BirthdayCardProps> = ({ birthday, onDelete }
 
       {showGifts && (
         <div className="mt-4 pl-3 animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-              <Gift className="w-3 h-3" />
-              Suggested Gifts
-            </h4>
-            <div className="grid grid-cols-2 gap-2">
-              {suggestions.map((gift, i) => (
-                <div key={i} className="bg-white px-3 py-2 rounded-lg text-sm font-medium text-gray-700 shadow-sm border border-gray-100 text-center">
-                  {gift}
+          <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 min-h-[100px] flex items-center justify-center">
+            {isLoadingGifts ? (
+              <div className="flex flex-col items-center gap-2 text-gray-400">
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span className="text-xs font-medium">Finding perfect gifts...</span>
+              </div>
+            ) : (
+              <div className="w-full">
+                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <Gift className="w-3 h-3" />
+                  Suggested Gifts
+                </h4>
+                <div className="grid grid-cols-2 gap-2">
+                  {giftIdeas.map((gift, i) => (
+                    <div key={i} className="bg-white px-3 py-2 rounded-lg text-sm font-medium text-gray-700 shadow-sm border border-gray-100 text-center">
+                      {gift}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       )}

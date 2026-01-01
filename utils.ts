@@ -1,3 +1,4 @@
+import { GoogleGenAI, Type } from "@google/genai";
 import { Birthday, BirthdayWithCalculations, RelationType } from './types';
 
 export const calculateBirthdayInfo = (birthday: Birthday): BirthdayWithCalculations => {
@@ -53,7 +54,8 @@ export const getOrdinalSuffix = (i: number): string => {
   return "th";
 };
 
-export const getGiftSuggestions = (relation: RelationType, age: number): string[] => {
+// Static fallback suggestions
+export const getStaticGiftSuggestions = (relation: RelationType, age: number): string[] => {
   // Children
   if (age <= 12) {
     return ['Lego/Building Set', 'Board Game', 'Art Supplies', 'Science Kit'];
@@ -72,5 +74,46 @@ export const getGiftSuggestions = (relation: RelationType, age: number): string[
     case RelationType.FRIEND:
     default:
       return ['Concert Tickets', 'Restaurant Voucher', 'Best-selling Book', 'Local Experience'];
+  }
+};
+
+// AI Powered suggestions
+export const generateGiftSuggestions = async (relation: RelationType, age: number, name: string): Promise<string[]> => {
+  try {
+    // Safe access for browser environment where process might be undefined
+    const apiKey = typeof process !== 'undefined' ? process.env.API_KEY : undefined;
+
+    if (!apiKey) {
+      console.warn("No API Key found, using static suggestions");
+      return getStaticGiftSuggestions(relation, age);
+    }
+
+    const ai = new GoogleGenAI({ apiKey });
+    
+    // We use gemini-3-flash-preview for fast, creative text generation
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: `List 4 specific, creative, and short gift ideas for a ${age} year old ${relation} named ${name}.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+           type: Type.ARRAY,
+           items: { type: Type.STRING }
+        }
+      }
+    });
+
+    const text = response.text;
+    if (!text) return getStaticGiftSuggestions(relation, age);
+
+    const ideas = JSON.parse(text);
+    if (Array.isArray(ideas) && ideas.length > 0) {
+      return ideas;
+    }
+    
+    return getStaticGiftSuggestions(relation, age);
+  } catch (error) {
+    console.error("Gemini API failed or not configured, using fallback:", error);
+    return getStaticGiftSuggestions(relation, age);
   }
 };
